@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>ResumeAI | Job Category Classifier</title>
+
+<link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+<body>
+
+
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-container">
+
+        <div class="logo">
+            <span class="logo-mark">R</span>
+            <span>ResumeAI</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="#analyzer">Analyzer</a>
+            <a href="#about">About</a>
+        </div>
+
+    </div>
+</nav>
+
+
+<!-- Main -->
+<main>
+
+    <!-- Hero -->
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <span class="badge">
+                AI Powered NLP
+            </span>
+
+            <h1>
+                Discover the job category<br>
+                behind your <span>profile.</span>
+            </h1>
+
+            <p>
+                Analyze job-related text using a deep learning
+                BiGRU model and predict the most likely career category.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Analyzer -->
+    <section class="analyzer-section" id="analyzer">
+
+        <div class="analyzer-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Job Category Analyzer</h2>
+                    <p>
+                        Enter job information and let the model classify it.
+                    </p>
+                </div>
+
+                <span class="status">
+                    <span class="status-dot"></span>
+                    Model Ready
+                </span>
+
+            </div>
+
+
+            <!-- Input -->
+            <div class="input-area">
+
+                <label for="textInput">
+                    Job information
+                </label>
+
+                <textarea
+                    id="textInput"
+                    placeholder="Example: Senior Machine Learning Engineer 3 Python; PyTorch; TensorFlow; Scikit-learn; Deep Learning; SQL"
+                    maxlength="2000"
+                ></textarea>
+
+                <div class="input-footer">
+
+                    <span id="charCount">
+                        0 / 2000
+                    </span>
+
+                    <button id="analyzeBtn">
+                        Predict Category
+                        <span>→</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Error -->
+            <div id="errorBox" class="error-box hidden">
+
+                <span>⚠</span>
+
+                <span id="errorMessage"></span>
+
+            </div>
+
+
+            <!-- Result -->
+            <div id="resultSection" class="result-section hidden">
+
+                <div class="result-header">
+
+                    <h3>Classification Result</h3>
+
+                    <span>Prediction</span>
+
+                </div>
+
+
+                <div class="prediction-main">
+
+                    <div class="emotion-icon" id="categoryIcon">
+                        💼
+                    </div>
+
+                    <div class="prediction-info">
+
+                        <span>Detected category</span>
+
+                        <h2 id="categoryLabel">
+                            Data & AI
+                        </h2>
+
+                    </div>
+
+                    <div class="confidence">
+
+                        <span>Confidence</span>
+
+                        <strong id="confidenceValue">
+                            0%
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Probability -->
+                <div class="probability-section">
+
+                    <div class="probability-title">
+
+                        <span>
+                            Category probabilities
+                        </span>
+
+                    </div>
+
+                    <div id="probabilityList"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- About -->
+    <section class="about" id="about">
+
+        <div class="about-content">
+
+            <span class="section-label">
+                HOW IT WORKS
+            </span>
+
+            <h2>
+                From job text to category in seconds.
+            </h2>
+
+            <p>
+                Your input is cleaned, tokenized and padded before
+                being passed through a trained BiGRU neural network
+                to identify the most probable job category.
+            </p>
+
+        </div>
+
+
+        <div class="steps">
+
+            <div class="step">
+
+                <span>01</span>
+
+                <h3>Input</h3>
+
+                <p>
+                    Enter job title, experience level and skills.
+                </p>
+
+            </div>
+
+
+            <div class="step">
+
+                <span>02</span>
+
+                <h3>Process</h3>
+
+                <p>
+                    Text is cleaned, tokenized and padded.
+                </p>
+
+            </div>
+
+
+            <div class="step">
+
+                <span>03</span>
+
+                <h3>Predict</h3>
+
+                <p>
+                    BiGRU predicts the most likely job category.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        ResumeAI · NLP Job Category Classification
+    </p>
+
+</footer>
+
+
+<script src="/static/script.js"></script>
+
+
+</body>
+</html>
