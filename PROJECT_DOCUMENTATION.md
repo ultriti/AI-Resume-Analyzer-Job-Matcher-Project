@@ -424,7 +424,7 @@ project-root/
 - Node.js and npm for the React/Vite interface.
 - The model and tokenizer artifacts under `Artifacts/`.
 - Python packages from `requirements.txt`.
-- The extraction module imports spaCy. If it is not installed in the runtime environment, install and declare a compatible spaCy version. The current primary skill extraction is vocabulary based; the optional NER helper additionally expects the `en_core_web_sm` model.
+- The backend requirements include spaCy for the optional NER helper. The primary title and skill extraction path uses the configured phrase vocabulary and does not require the `en_core_web_sm` model.
 
 ### 14.2 Start the API
 
@@ -433,7 +433,8 @@ From the repository root:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+python -m pip install -r backend\requirements.txt
+Set-Location backend
 python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -467,16 +468,14 @@ The FastAPI root route (`/`) serves the interface from `static/index.html`. This
 ## 15. Known limitations and integration notes
 
 1. **Two frontend implementations:** The FastAPI root serves `static/`, while the React application is served separately by Vite. Features and presentation can diverge unless the team chooses one UI as the supported product and maintains the other deliberately.
-2. **Two frontend implementations:** The FastAPI root serves `static/`, while the React application is served separately by Vite. Features and presentation can diverge unless the team chooses one UI as the supported product and maintains the other deliberately.
-3. **Text-based PDF assumption:** `pypdf` extracts embedded text only; image-only or scanned resumes require OCR, which is not present.
-4. **Fixed vocabularies:** Title and skill extraction only recognizes configured phrases and aliases. New terminology requires an update to the vocabulary and tests.
-5. **Fixed sequence length:** Text beyond the 50-token model input length is truncated; very short or sparse input may not contain enough signal.
-6. **Model quality evidence:** The repository documentation does not establish validated accuracy, calibration, robustness, or bias results. Evaluate using representative, labeled data before operational use.
-7. **No authentication or authorization:** Endpoints are not protected by a user identity or role-based access-control layer.
-8. **No persistence or audit workflow:** The application does not provide a resume record store, user history, review queue, or audit trail.
-9. **Operational hardening:** File size limits, content-based file validation, rate limiting, structured production logging, monitoring, and deployment configuration should be reviewed before exposing the service publicly.
-10. **Dependency declaration:** The resume parser imports spaCy, but `spacy` is not listed in the current `requirements.txt`. Keep runtime imports and dependency manifests synchronized.
-11. **No business performance claims:** Throughput, accuracy, cost reduction, and time savings must be measured; they should not be inferred from the model or the presence of datasets.
+2. **Text-based PDF assumption:** `pypdf` extracts embedded text only; image-only or scanned resumes require OCR, which is not present.
+3. **Fixed vocabularies:** Title and skill extraction only recognizes configured phrases and aliases. New terminology requires an update to the vocabulary and tests.
+4. **Fixed sequence length:** Text beyond the 50-token model input length is truncated; very short or sparse input may not contain enough signal.
+5. **Model quality evidence:** The repository documentation does not establish validated accuracy, calibration, robustness, or bias results. Evaluate using representative, labeled data before operational use.
+6. **No authentication or authorization:** Endpoints are not protected by a user identity or role-based access-control layer.
+7. **No persistence or audit workflow:** The application does not provide a resume record store, user history, review queue, or audit trail.
+8. **Operational hardening:** File size limits, content-based file validation, rate limiting, structured production logging, monitoring, and deployment configuration should be reviewed before exposing the service publicly.
+9. **No business performance claims:** Throughput, accuracy, cost reduction, and time savings must be measured; they should not be inferred from the model or the presence of datasets.
 
 ## 16. Responsible use, privacy, and security
 
@@ -494,7 +493,7 @@ The FastAPI root route (`/`) serves the interface from `static/index.html`. This
 
 Potential improvements, subject to product and governance review:
 
-1. Align the React frontend's expected schema with the actual resume API response and add contract tests.
+1. Add contract tests to keep the React resume page and resume-analysis API response aligned.
 2. Select one supported frontend or define a parity policy for the static and React interfaces.
 3. Add OCR as an explicit, opt-in capability for scanned documents.
 4. Add configurable upload limits, stricter file validation, and operational error reporting.

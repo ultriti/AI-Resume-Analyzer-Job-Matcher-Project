@@ -119,8 +119,9 @@ source venv/bin/activate
 # 3. Install backend packages
 pip install -r backend\requirements.txt
 
-# 4. Launch the FastAPI server
-python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+# 4. Launch the FastAPI server from the backend directory
+cd backend
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ---
@@ -156,7 +157,7 @@ Classifies manually entered job or skills text and returns the predicted categor
 ```
 
 ### `POST /analyze-resume`
-Accepts a PDF resume as multipart form data, detects a known job title, filters the extracted skills for that title, and classifies the title plus relevant skills.
+Accepts a PDF resume as multipart form data, detects a known job title and supported skills, predicts a category, and returns ranked role skill matches.
 
 ```powershell
 curl.exe -X POST http://127.0.0.1:8000/analyze-resume -F "file=@resume.pdf"
