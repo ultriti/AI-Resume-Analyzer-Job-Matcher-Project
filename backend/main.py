@@ -1,11 +1,9 @@
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
-from pydantic import BaseModel, Field
-from typing import Optional
 
 import re
 import pickle
@@ -15,8 +13,13 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
 
 
-# ------
-from dependencies.Funtions import extract_information
+from dependencies.Funtions import extract_information, multiple_job_analysis
+from schema.InputSchema import (
+    HealthRepsonse,
+    PredictionResponse,
+    ResumeAnalysisResponse,
+    TextInput,
+)
 
 
 # ------------------------------------------
@@ -44,38 +47,6 @@ labels = [
     "Product & Management",
     "Software Engineering",
 ]
-
-
-# --------------------------------------
-#  input schema -----------------------
-class TextInput(BaseModel):
-    text: str = Field(
-        ...,
-        min_length=1,
-        max_length=2000,
-        description="the sentence to analyze",
-        json_schema_extra={"example": "i am so much happy for this"},
-    )
-
-
-class PredictionResponse(BaseModel):
-    text: str
-    prediction_emotion: str
-    confidence: float
-    all_probabilities: dict[str, float]
-
-class ResumeAnalysisResponse(BaseModel):
-    job_title: Optional[str]
-    skills: list[str]
-    prediction_category: str
-    confidence: float
-    all_probabilities: dict[str, float]
-
-
-class HealthRepsonse(BaseModel):
-    status: str
-    model_loaded: bool
-
 
 # -------------------------------------
 # main file server --------------------
@@ -129,6 +100,16 @@ def server_ui():
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
+
+
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
+def chrome_devtools_discovery():
+    return Response(status_code=204)
+
+
 # -----------------------------------
 # health check up
 
@@ -163,6 +144,7 @@ def predict_category(input_text: str) -> PredictionResponse:
     )
     probabilities = BiGRU_model.predict(padded_text)[0]
     predicted_index = int(np.argmax(probabilities))
+    
 
     return PredictionResponse(
         text=input_text,
@@ -188,10 +170,12 @@ def analyze_resume(file: UploadFile = File(...)):
         )
 
     prediction_result = predict_category(profile["model_input"])
+    job_analysis = multiple_job_analysis(profile["skills"])
     return ResumeAnalysisResponse(
         job_title=profile["job_title"],
         skills=profile["skills"],
         prediction_category=prediction_result.prediction_emotion,
         confidence=prediction_result.confidence,
         all_probabilities=prediction_result.all_probabilities,
+        job_analysis=job_analysis,
     )

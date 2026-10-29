@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api.v1.routes import job_ana
+from backend.api.v1.routes import job_ana
 
 api_router = APIRouter()
 

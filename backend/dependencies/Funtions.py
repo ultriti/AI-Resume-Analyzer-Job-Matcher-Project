@@ -1,6 +1,6 @@
-from dependencies.pdf_funtionality import file_text_extraction
-from dependencies.model_prediction import extract_titles, extract_skills_loop
-from dependencies.job_title_analyze import compare_skills
+from .pdf_funtionality import file_text_extraction
+from .model_prediction import extract_titles, extract_skills_loop
+from .job_title_analyze import compare_skills
 
 
 def extract_information(pdf):

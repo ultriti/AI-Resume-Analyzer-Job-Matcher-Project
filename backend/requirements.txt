@@ -6,3 +6,4 @@ tensorflow
 keras
 pypdf
 python-multipart
+spacy

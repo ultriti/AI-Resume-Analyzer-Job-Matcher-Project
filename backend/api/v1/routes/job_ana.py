@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 
 
-from dependencies.Funtions import extract_information, compare_skills
+from backend.dependencies.Funtions import extract_information
+from backend.dependencies.job_title_analyze import compare_skills
 
 router = APIRouter(prefix="/job_analysis")
 
@@ -23,4 +24,3 @@ def multiple_job_analysis(pdf):
         print("Missing:", details["missing_skills"])
         
         
-multiple_job_analysis(r"D:\resume\Yashash_Ravi_AI_Eng_Resume.pdf")

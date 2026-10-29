@@ -116,11 +116,11 @@ python -m venv venv
 # Linux / macOS:
 source venv/bin/activate
 
-# 3. Install required packages
-pip install -r requirements.txt
+# 3. Install backend packages
+pip install -r backend\requirements.txt
 
 # 4. Launch the FastAPI server
-python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ---
