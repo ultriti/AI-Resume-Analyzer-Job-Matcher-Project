@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pathlib import Path
 from pydantic import BaseModel, Field
+from typing import Optional
 
 import re
 import pickle
@@ -12,6 +13,12 @@ from keras.models import load_model
 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
+
+
+# ------
+from dependencies.Funtions import extract_information, multiple_job_analysis
+from schema.InputSchema import TextInput, PredictionResponse, ResumeAnalysisResponse, HealthRepsonse
+
 
 # ------------------------------------------
 # load models and all other artifacts
@@ -38,31 +45,6 @@ labels = [
     "Product & Management",
     "Software Engineering",
 ]
-
-
-# --------------------------------------
-#  input schema -----------------------
-class TextInput(BaseModel):
-    text: str = Field(
-        ...,
-        min_length=1,
-        max_length=2000,
-        description="the sentence to analyze",
-        json_schema_extra={"example": "i am so much happy for this"},
-    )
-
-
-class PredictionResponse(BaseModel):
-    text: str
-    prediction_emotion: str
-    confidence: float
-    all_probabilities: dict[str, float]
-
-
-class HealthRepsonse(BaseModel):
-    status: str
-    model_loaded: bool
-
 
 # -------------------------------------
 # main file server --------------------
@@ -116,6 +98,16 @@ def server_ui():
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
+
+
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
+def chrome_devtools_discovery():
+    return Response(status_code=204)
+
+
 # -----------------------------------
 # health check up
 
@@ -131,7 +123,10 @@ def health_check():
 
 @app.post("/predict", response_model=PredictionResponse)
 def prediction(text_input: TextInput):
+    return predict_category(text_input.text)
 
+
+def predict_category(input_text: str) -> PredictionResponse:
     BiGRU_model = dl_model.get("BiGRU")
     tokenizer = dl_model.get("Tokenizer")
 
@@ -140,34 +135,46 @@ def prediction(text_input: TextInput):
             status_code=503, detail="Model not loaded yet. Please load the model."
         )
 
-    # ------ filtering the input
-    print("---------------------------------------------------------\n",text_input.text)
-    text = preprocessed_text(text_input.text)
-
-    print(text)
-
-    # -------- tokanize the text
-    tokanized_text = tokenizer.texts_to_sequences([text])
-
-    # -------- padding text
+    text = preprocessed_text(input_text)
+    tokenized_text = tokenizer.texts_to_sequences([text])
     padded_text = pad_sequences(
-        tokanized_text, maxlen=max_seq_len, padding="post", truncating="post"
+        tokenized_text, maxlen=max_seq_len, padding="post", truncating="post"
     )
-
-    print("-=-=-=-=-=-=-=\n",padded_text)
     probabilities = BiGRU_model.predict(padded_text)[0]
-
     predicted_index = int(np.argmax(probabilities))
-
-    all_probabilities = {
-        label: float(prob) for label, prob in zip(labels, probabilities)
-    }
     
-    predicted_label = labels[predicted_index]
 
     return PredictionResponse(
-        text=text_input.text,
-        prediction_emotion=predicted_label,
+        text=input_text,
+        prediction_emotion=labels[predicted_index],
         confidence=float(probabilities[predicted_index]),
-        all_probabilities=all_probabilities,
+        all_probabilities={
+            label: float(probability)
+            for label, probability in zip(labels, probabilities)
+        },
+    )
+
+
+@app.post("/analyze-resume", response_model=ResumeAnalysisResponse)
+def analyze_resume(file: UploadFile = File(...)):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=415, detail="Upload a PDF resume.")
+
+    profile = extract_information(file.file)
+    if not profile["skills"]:
+        raise HTTPException(
+            status_code=422,
+            detail="No supported skills were found in the uploaded resume.",
+        )
+
+    prediction_result = predict_category(profile["model_input"])
+    job_analysis = multiple_job_analysis(profile["skills"])
+    print(job_analysis)
+    return ResumeAnalysisResponse(
+        job_title=profile["job_title"],
+        skills=profile["skills"],
+        prediction_category=prediction_result.prediction_emotion,
+        confidence=prediction_result.confidence,
+        all_probabilities=prediction_result.all_probabilities,
+        job_analysis=job_analysis,
     )

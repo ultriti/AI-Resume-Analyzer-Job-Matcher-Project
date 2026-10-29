@@ -1,270 +1,321 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ResumeAI — AI-powered resume analyzer and job category classifier using a BiGRU deep learning model. Predict career categories from text or PDF resumes.">
 
+    <title>ResumeAI | AI Resume Analyzer & Job Matcher</title>
 
-<title>ResumeAI | Job Category Classifier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="/static/style.css">
-
-
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
 
-
-<!-- Navbar -->
-<nav class="navbar">
-    <div class="nav-container">
-
-        <div class="logo">
-            <span class="logo-mark">R</span>
-            <span>ResumeAI</span>
-        </div>
-
-        <div class="nav-links">
-            <a href="#analyzer">Analyzer</a>
-            <a href="#about">About</a>
-        </div>
-
+    <!-- Ambient background blobs -->
+    <div class="bg-ambient" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
-</nav>
 
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo" id="logoLink">
+                <span class="logo-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </span>
+                <span class="logo-text">Resume<span class="logo-accent">AI</span></span>
+            </a>
 
-<!-- Main -->
-<main>
-
-    <!-- Hero -->
-    <section class="hero">
-
-        <div class="hero-content">
-
-            <span class="badge">
-                AI Powered NLP
-            </span>
-
-            <h1>
-                Discover the job category<br>
-                behind your <span>profile.</span>
-            </h1>
-
-            <p>
-                Analyze job-related text using a deep learning
-                BiGRU model and predict the most likely career category.
-            </p>
-
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-tab="predict" id="navPredict">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    Text Predict
+                </a>
+                <a href="#" class="nav-link" data-tab="resume" id="navResume">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    Resume Analyze
+                </a>
+                <div class="health-indicator" id="healthIndicator">
+                    <span class="health-dot"></span>
+                    <span class="health-label">Checking...</span>
+                </div>
+            </div>
         </div>
+    </nav>
 
-    </section>
 
+    <!-- Main Content -->
+    <main>
 
-    <!-- Analyzer -->
-    <section class="analyzer-section" id="analyzer">
+        <!-- ===================== PAGE 1: TEXT PREDICTION ===================== -->
+        <section class="page active" id="predictPage">
 
-        <div class="analyzer-card">
-
-            <div class="card-header">
-
-                <div>
-                    <h2>Job Category Analyzer</h2>
-                    <p>
-                        Enter job information and let the model classify it.
+            <!-- Hero -->
+            <div class="hero">
+                <div class="hero-inner">
+                    <div class="hero-badge">
+                        <span class="badge-dot"></span>
+                        BiGRU Deep Learning Model
+                    </div>
+                    <h1>Predict your <em>career category</em> from text.</h1>
+                    <p class="hero-sub">
+                        Enter job titles, skills, or a role description. Our trained neural network classifies it into one of 7 career categories in real-time.
                     </p>
                 </div>
-
-                <span class="status">
-                    <span class="status-dot"></span>
-                    Model Ready
-                </span>
-
             </div>
 
+            <!-- Predict Card -->
+            <div class="card-container">
+                <div class="glass-card" id="predictCard">
 
-            <!-- Input -->
-            <div class="input-area">
-
-                <label for="textInput">
-                    Job information
-                </label>
-
-                <textarea
-                    id="textInput"
-                    placeholder="Example: Senior Machine Learning Engineer 3 Python; PyTorch; TensorFlow; Scikit-learn; Deep Learning; SQL"
-                    maxlength="2000"
-                ></textarea>
-
-                <div class="input-footer">
-
-                    <span id="charCount">
-                        0 / 2000
-                    </span>
-
-                    <button id="analyzeBtn">
-                        Predict Category
-                        <span>→</span>
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- Error -->
-            <div id="errorBox" class="error-box hidden">
-
-                <span>⚠</span>
-
-                <span id="errorMessage"></span>
-
-            </div>
-
-
-            <!-- Result -->
-            <div id="resultSection" class="result-section hidden">
-
-                <div class="result-header">
-
-                    <h3>Classification Result</h3>
-
-                    <span>Prediction</span>
-
-                </div>
-
-
-                <div class="prediction-main">
-
-                    <div class="emotion-icon" id="categoryIcon">
-                        💼
+                    <div class="card-top">
+                        <div class="card-title-group">
+                            <div class="card-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <div>
+                                <h2>Text Category Prediction</h2>
+                                <p>Type a job description, skill set, or career summary below.</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="prediction-info">
-
-                        <span>Detected category</span>
-
-                        <h2 id="categoryLabel">
-                            Data & AI
-                        </h2>
-
+                    <div class="input-group">
+                        <label for="textInput">Your text input</label>
+                        <textarea
+                            id="textInput"
+                            placeholder="Example: Machine learning engineer skilled in Python, PyTorch, TensorFlow, deep learning and SQL."
+                            maxlength="2000"
+                            rows="6"
+                        ></textarea>
+                        <div class="input-meta">
+                            <span class="char-count" id="charCount">0 / 2000</span>
+                            <button class="btn-primary" id="predictBtn" type="button">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                Predict Category
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="confidence">
+                    <!-- Error -->
+                    <div id="predictError" class="error-box hidden">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span id="predictErrorMsg"></span>
+                    </div>
 
-                        <span>Confidence</span>
+                    <!-- Result -->
+                    <div id="predictResult" class="result-panel hidden">
 
-                        <strong id="confidenceValue">
-                            0%
-                        </strong>
+                        <div class="result-label-row">
+                            <h3>Classification Result</h3>
+                            <span class="result-badge">Text Prediction</span>
+                        </div>
+
+                        <div class="result-hero-card">
+                            <div class="result-emoji" id="predictEmoji">💼</div>
+                            <div class="result-main-info">
+                                <span class="result-small-label">Detected Category</span>
+                                <h2 id="predictCategory">—</h2>
+                            </div>
+                            <div class="result-confidence">
+                                <span class="result-small-label">Confidence</span>
+                                <strong id="predictConfidence">0%</strong>
+                            </div>
+                        </div>
+
+                        <!-- Probability bars -->
+                        <div class="probability-section">
+                            <h4>Category Probabilities</h4>
+                            <div id="predictProbabilities" class="probability-list"></div>
+                        </div>
 
                     </div>
 
                 </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="how-section">
+                <div class="how-inner">
+                    <div class="how-info">
+                        <span class="section-tag">How it works</span>
+                        <h2>From raw text to a career category in seconds.</h2>
+                        <p>Your input is preprocessed, tokenized and fed into a Bidirectional GRU neural network trained on thousands of career profiles.</p>
+                    </div>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <span class="step-number">01</span>
+                            <h3>Input</h3>
+                            <p>Enter a job title, skill list, or role description.</p>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-number">02</span>
+                            <h3>Process</h3>
+                            <p>Text is cleaned, tokenized, and padded to a fixed length.</p>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-number">03</span>
+                            <h3>Predict</h3>
+                            <p>The BiGRU model predicts the most likely job category.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
 
 
-                <!-- Probability -->
-                <div class="probability-section">
+        <!-- ===================== PAGE 2: RESUME ANALYSIS ===================== -->
+        <section class="page" id="resumePage">
 
-                    <div class="probability-title">
+            <!-- Hero -->
+            <div class="hero hero-resume">
+                <div class="hero-inner">
+                    <div class="hero-badge">
+                        <span class="badge-dot badge-dot-alt"></span>
+                        PDF Resume Analysis
+                    </div>
+                    <h1>Upload your resume, <em>see where you fit.</em></h1>
+                    <p class="hero-sub">
+                        Drop a PDF resume and get an AI-powered breakdown: detected job title, extracted skills, predicted career category, and a ranked comparison across multiple roles.
+                    </p>
+                </div>
+            </div>
 
-                        <span>
-                            Category probabilities
-                        </span>
+            <!-- Resume Card -->
+            <div class="card-container">
+                <div class="glass-card" id="resumeCard">
+
+                    <div class="card-top">
+                        <div class="card-title-group">
+                            <div class="card-icon card-icon-alt">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <div>
+                                <h2>Resume Analysis</h2>
+                                <p>Upload a PDF resume to extract skills and match against job roles.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload zone -->
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-zone-inner">
+                            <div class="upload-icon-ring">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <p class="upload-main-text">Drag & drop your PDF resume here</p>
+                            <p class="upload-sub-text">or click to browse files</p>
+                            <input type="file" id="resumeFile" accept=".pdf,application/pdf" class="upload-input">
+                        </div>
+                    </div>
+
+                    <div class="file-info hidden" id="fileInfo">
+                        <div class="file-badge">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span id="fileName">resume.pdf</span>
+                        </div>
+                        <button class="btn-remove" id="removeFileBtn" type="button" title="Remove file">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="upload-action">
+                        <button class="btn-primary btn-resume" id="resumeBtn" type="button">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                            Analyze Resume
+                        </button>
+                    </div>
+
+                    <!-- Error -->
+                    <div id="resumeError" class="error-box hidden">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span id="resumeErrorMsg"></span>
+                    </div>
+
+                    <!-- Resume Result -->
+                    <div id="resumeResult" class="result-panel hidden">
+
+                        <div class="result-label-row">
+                            <h3>Analysis Result</h3>
+                            <span class="result-badge result-badge-alt">Resume Analysis</span>
+                        </div>
+
+                        <div class="result-hero-card">
+                            <div class="result-emoji" id="resumeEmoji">📄</div>
+                            <div class="result-main-info">
+                                <span class="result-small-label">Predicted Category</span>
+                                <h2 id="resumeCategory">—</h2>
+                            </div>
+                            <div class="result-confidence">
+                                <span class="result-small-label">Confidence</span>
+                                <strong id="resumeConfidence">0%</strong>
+                            </div>
+                        </div>
+
+                        <!-- Resume Details -->
+                        <div class="resume-details-panel">
+                            <div class="resume-meta-row">
+                                <div class="resume-meta-item">
+                                    <span class="meta-label">Detected Job Title</span>
+                                    <strong id="resumeJobTitle">—</strong>
+                                </div>
+                                <div class="resume-meta-item">
+                                    <span class="meta-label">Skills Found</span>
+                                    <strong id="resumeSkillCount">0</strong>
+                                </div>
+                            </div>
+
+                            <div class="skills-cloud" id="resumeSkillList"></div>
+                        </div>
+
+                        <!-- Job Matches -->
+                        <div class="job-matches-section">
+                            <div class="job-matches-header">
+                                <h4>Role Skill Matches</h4>
+                                <p>Ranked by the share of required skills found in this resume.</p>
+                            </div>
+                            <div id="jobMatchList" class="job-match-list"></div>
+                        </div>
+
+                        <!-- Probability bars -->
+                        <div class="probability-section">
+                            <h4>Category Probabilities</h4>
+                            <div id="resumeProbabilities" class="probability-list"></div>
+                        </div>
 
                     </div>
 
-                    <div id="probabilityList"></div>
-
                 </div>
-
             </div>
 
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-inner">
+            <span class="logo-text logo-text-sm">Resume<span class="logo-accent">AI</span></span>
+            <p>NLP-powered Job Category Classification · BiGRU Deep Learning</p>
         </div>
+    </footer>
 
-    </section>
-
-
-    <!-- About -->
-    <section class="about" id="about">
-
-        <div class="about-content">
-
-            <span class="section-label">
-                HOW IT WORKS
-            </span>
-
-            <h2>
-                From job text to category in seconds.
-            </h2>
-
-            <p>
-                Your input is cleaned, tokenized and padded before
-                being passed through a trained BiGRU neural network
-                to identify the most probable job category.
-            </p>
-
-        </div>
-
-
-        <div class="steps">
-
-            <div class="step">
-
-                <span>01</span>
-
-                <h3>Input</h3>
-
-                <p>
-                    Enter job title, experience level and skills.
-                </p>
-
-            </div>
-
-
-            <div class="step">
-
-                <span>02</span>
-
-                <h3>Process</h3>
-
-                <p>
-                    Text is cleaned, tokenized and padded.
-                </p>
-
-            </div>
-
-
-            <div class="step">
-
-                <span>03</span>
-
-                <h3>Predict</h3>
-
-                <p>
-                    BiGRU predicts the most likely job category.
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-<footer>
-
-    <p>
-        ResumeAI · NLP Job Category Classification
-    </p>
-
-</footer>
-
-
-<script src="/static/script.js"></script>
-
+    <script src="/static/script.js"></script>
 
 </body>
 </html>
