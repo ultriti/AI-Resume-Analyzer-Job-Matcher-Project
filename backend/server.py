@@ -16,7 +16,7 @@ import numpy as np
 
 
 # ------
-from backend.dependencies.Funtions import extract_information
+from dependencies.Funtions import extract_information, multiple_job_analysis
 
 
 # ------------------------------------------
@@ -64,12 +64,21 @@ class PredictionResponse(BaseModel):
     confidence: float
     all_probabilities: dict[str, float]
 
+
+class JobMatch(BaseModel):
+    role: str
+    score: float
+    matched_skills: list[str]
+    missing_skills: list[str]
+
+
 class ResumeAnalysisResponse(BaseModel):
     job_title: Optional[str]
     skills: list[str]
     prediction_category: str
     confidence: float
     all_probabilities: dict[str, float]
+    job_analysis: list[JobMatch]
 
 
 class HealthRepsonse(BaseModel):
@@ -188,10 +197,12 @@ def analyze_resume(file: UploadFile = File(...)):
         )
 
     prediction_result = predict_category(profile["model_input"])
+    job_analysis = multiple_job_analysis(profile["skills"])
     return ResumeAnalysisResponse(
         job_title=profile["job_title"],
         skills=profile["skills"],
         prediction_category=prediction_result.prediction_emotion,
         confidence=prediction_result.confidence,
         all_probabilities=prediction_result.all_probabilities,
+        job_analysis=job_analysis,
     )
